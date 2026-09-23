@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#18362f">
+  <title>California Food Need Map</title>
+  <meta name="description" content="Explore county-level food insecurity estimates and find California food assistance organizations.">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#map-section">Skip to map</a>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="California Food Need Map home"><span class="brand-mark" aria-hidden="true">CA</span><span>Food Need Map</span></a>
+    <nav aria-label="Main navigation"><a href="#map-section">Explore</a><a href="#resources">Get help</a><a href="#methodology">About the data</a></nav>
+    <a class="header-help" href="tel:211">Call 211</a>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow">A planning tool for California communities</p>
+        <h1 id="hero-title">See where food support can make the biggest difference.</h1>
+        <p class="hero-lede">Explore modeled county estimates, compare need, and connect people with trusted food resources. No sign-up, tracking, or location sharing required.</p>
+        <div class="hero-actions"><a class="button button-primary" href="#map-section">Explore the map</a><a class="button button-secondary" href="#resources">Find food now</a></div>
+      </div>
+      <aside class="urgent-card" aria-label="Immediate food help"><span class="urgent-icon" aria-hidden="true">✦</span><div><strong>Need food today?</strong><p>Dial <a href="tel:211">211</a> for local help, available 24/7 in most of California.</p></div></aside>
+    </section>
+
+    <section class="state-context" aria-labelledby="context-title">
+      <div class="section-heading compact"><p class="eyebrow">The statewide picture</p><h2 id="context-title">Need remains widespread—and uneven.</h2></div>
+      <div class="stat-grid">
+        <article class="stat-card"><strong>1 in 4</strong><span>California adults experienced food insecurity in 2025</span><a href="https://www.cafoodbanks.org/statement/new-research-shows-rising-food-insecurity-in-california-and-estimates-nearly-40-of-californians-are-unable-to-meet-basic-needs/" target="_blank" rel="noreferrer">CA Food Banks ↗</a></article>
+        <article class="stat-card"><strong>47.2%</strong><span>of low-income California adults could not afford enough food in 2024</span><a href="https://healthpolicy.ucla.edu/our-work/food-insecurity" target="_blank" rel="noreferrer">UCLA CHIS ↗</a></article>
+        <article class="stat-card"><strong>~22%</strong><span>of California households experience food insecurity in recent Pulse data</span><a href="https://www.cafoodbanks.org/hunger-data-reports/" target="_blank" rel="noreferrer">Research hub ↗</a></article>
+      </div>
+    </section>
+
+    <section id="map-section" class="explorer" aria-labelledby="map-title">
+      <div class="section-heading"><p class="eyebrow">County planning view</p><h2 id="map-title">Explore estimated food insecurity</h2><p>Darker yellow and red indicate higher modeled rates. Select a county to see its estimate and nearby organizations.</p></div>
+      <div class="explorer-toolbar">
+        <label class="search-box" for="area-search"><span class="sr-only">Search county or major city</span><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m21 21-4.4-4.4m2.4-5.1a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z"/></svg><input id="area-search" list="area-options" type="search" placeholder="Search county or major city" autocomplete="off"><datalist id="area-options"></datalist></label>
+        <button class="button button-dark" id="search-button" type="button">Show area</button>
+        <button class="button button-ghost" id="priority-button" type="button" aria-pressed="false">Priority list</button>
+      </div>
+
+      <div class="map-layout">
+        <div class="map-card">
+          <div class="map-topline">
+            <div class="legend" aria-label="Food insecurity rate legend"><span><i class="swatch low"></i> Under 10%</span><span><i class="swatch medium"></i> 10–14.9%</span><span><i class="swatch elevated"></i> 15–17.9%</span><span><i class="swatch high"></i> 18%+</span></div>
+            <span class="data-year">County layer · 2020 model</span>
+          </div>
+          <div id="map" class="map" role="application" aria-label="Interactive map of California counties. Use Tab to move between counties and Enter to select.">
+            <p class="map-loading" id="map-loading">Loading county map…</p>
+            <svg id="county-map" viewBox="0 0 680 760" aria-labelledby="map-svg-title map-svg-desc"><title id="map-svg-title">California county food insecurity map</title><desc id="map-svg-desc">An interactive choropleth where white indicates lower modeled food insecurity, yellow indicates moderate need, and red indicates higher need.</desc><g id="map-content"></g></svg>
+            <div class="zoom-controls" aria-label="Map zoom controls"><button id="zoom-in" type="button" aria-label="Zoom in">+</button><button id="zoom-out" type="button" aria-label="Zoom out">−</button><button id="zoom-reset" type="button" aria-label="Reset map view">⌂</button></div>
+            <output id="map-status" class="sr-only" aria-live="polite"></output>
+          </div>
+          <p class="map-note"><strong>Planning note:</strong> County values are modeled estimates—not direct surveys or eligibility decisions. A low rate does not mean no one needs help.</p>
+        </div>
+
+        <aside class="detail-panel" aria-live="polite" aria-labelledby="detail-title">
+          <div class="detail-kicker">Selected area</div><h3 id="detail-title">Choose a county</h3><p id="detail-description">Select a county on the map or search above to view local need and support.</p>
+          <div id="detail-metric" class="detail-metric" hidden><strong id="detail-rate">—</strong><span>estimated food insecurity rate</span></div>
+          <div id="detail-classification" class="need-badge" hidden></div>
+          <div class="detail-actions" id="detail-actions" hidden><button id="zoom-county" class="button button-dark" type="button">Zoom to county</button><button id="share-county" class="button button-ghost" type="button">Copy link</button></div>
+          <div class="org-results"><div class="org-results-heading"><h4>Organizations that can help</h4><span id="org-count"></span></div><div id="organization-list" class="organization-list"><p class="empty-message">Statewide resources will appear here.</p></div></div>
+        </aside>
+      </div>
+
+      <div class="table-view"><button class="table-toggle" id="table-toggle" type="button" aria-expanded="false" aria-controls="county-table-wrap">View accessible county list <span aria-hidden="true">↓</span></button><div id="county-table-wrap" hidden><table><caption>California counties ranked by modeled food insecurity rate</caption><thead><tr><th scope="col">County</th><th scope="col">Estimated rate</th><th scope="col">Level</th><th scope="col">Action</th></tr></thead><tbody id="county-table-body"></tbody></table></div></div>
+    </section>
+
+    <section id="resources" class="resource-section" aria-labelledby="resources-title">
+      <div class="section-heading compact light"><p class="eyebrow">For people seeking support</p><h2 id="resources-title">Start with trusted, statewide help.</h2><p>Hours and eligibility can change. Call before visiting a location.</p></div>
+      <div class="resource-grid">
+        <a href="tel:211" class="resource-card"><span aria-hidden="true">☎</span><div><strong>Call 211</strong><p>Free, confidential local resource navigation in many languages.</p></div><b aria-hidden="true">→</b></a>
+        <a href="https://benefitscal.com/" target="_blank" rel="noreferrer" class="resource-card"><span aria-hidden="true">◫</span><div><strong>Apply for CalFresh</strong><p>Check benefits and apply online through BenefitsCal.</p></div><b aria-hidden="true">↗</b></a>
+        <a href="https://www.cafoodbanks.org/find-food/" target="_blank" rel="noreferrer" class="resource-card"><span aria-hidden="true">⌖</span><div><strong>Find nearby food</strong><p>Search California Food Banks’ network of community providers.</p></div><b aria-hidden="true">↗</b></a>
+      </div>
+    </section>
+
+    <section id="methodology" class="methodology" aria-labelledby="method-title">
+      <div class="section-heading compact"><p class="eyebrow">Read the map responsibly</p><h2 id="method-title">What this data can—and cannot—tell us</h2></div>
+      <div class="method-grid">
+        <article><span>01</span><h3>County layer</h3><p>The local map uses 2020 Feeding America Map the Meal Gap modeled estimates hosted by the federal HRSA. It combines survey, Census, unemployment, and food-cost inputs.</p></article>
+        <article><span>02</span><h3>Current context</h3><p>Statewide cards use newer UCLA CHIS and California Food Banks findings. Their populations and methods differ, so they should not be compared directly with the map.</p></article>
+        <article><span>03</span><h3>Use with local knowledge</h3><p>This is a prioritization starting point. Confirm conditions with food banks and communities before allocating services or funding.</p></article>
+      </div>
+      <div class="source-links"><a href="https://www.feedingamerica.org/research/map-the-meal-gap" target="_blank" rel="noreferrer">Feeding America methodology ↗</a><a href="https://www.cafoodbanks.org/hunger-data-reports/" target="_blank" rel="noreferrer">California hunger research ↗</a><a href="https://healthpolicy.ucla.edu/our-work/food-insecurity" target="_blank" rel="noreferrer">UCLA food insecurity research ↗</a><a href="/api/counties" download="california-food-insecurity.geojson">Download map data ↓</a></div>
+    </section>
+  </main>
+  <footer><div><strong>California Food Need Map</strong><p>Built for informed, compassionate action.</p></div><p>Data is informational and does not determine program eligibility.</p></footer>
+  <script src="/app.js" defer></script>
+</body>
+</html>

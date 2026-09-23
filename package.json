@@ -1,22 +1,15 @@
 {
-  "name": "codebox-day-1",
+  "name": "california-food-need-map",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "An accessible California food-insecurity planning map for nonprofits and community partners.",
+  "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node --watch src/index.js"
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/RotanakLim/codebox-day-1.git"
-  },
-  "keywords": [],
-  "author": "",
+  "engines": { "node": ">=18" },
+  "keywords": ["food-insecurity", "california", "nonprofit", "map"],
   "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/RotanakLim/codebox-day-1/issues"
-  },
-  "homepage": "https://github.com/RotanakLim/codebox-day-1#readme"
+  "type": "commonjs"
 }
