@@ -1,9 +1,9 @@
-const state = { geojson: null, organizations: [], selected: null, scale: 1, tx: 0, ty: 0, priority: false };
+const state = { geojson: null, organizations: [], localInsights: [], selected: null, scale: 1, tx: 0, ty: 0, priority: false };
 const cityToCounty = {
   'los angeles':'Los Angeles','san diego':'San Diego','san jose':'Santa Clara','san francisco':'San Francisco','fresno':'Fresno','sacramento':'Sacramento','long beach':'Los Angeles','oakland':'Alameda','bakersfield':'Kern','anaheim':'Orange','santa ana':'Orange','riverside':'Riverside','stockton':'San Joaquin','irvine':'Orange','chula vista':'San Diego','fremont':'Alameda','san bernardino':'San Bernardino','modesto':'Stanislaus','fontana':'San Bernardino','moreno valley':'Riverside','oxnard':'Ventura','huntington beach':'Orange','glendale':'Los Angeles','santa clarita':'Los Angeles','garden grove':'Orange','oceanside':'San Diego','rancho cucamonga':'San Bernardino','santa rosa':'Sonoma','ontario':'San Bernardino','elk grove':'Sacramento','corona':'Riverside','lancaster':'Los Angeles','palmdale':'Los Angeles','salinas':'Monterey','hayward':'Alameda','pomona':'Los Angeles','escondido':'San Diego','sunnyvale':'Santa Clara','torrance':'Los Angeles','pasadena':'Los Angeles','orange':'Orange','fullerton':'Orange','visalia':'Tulare','roseville':'Placer','concord':'Contra Costa','simi valley':'Ventura','santa clara':'Santa Clara','victorville':'San Bernardino','berkeley':'Alameda','fairfield':'Solano','antioch':'Contra Costa','richmond':'Contra Costa','daly city':'San Mateo','temecula':'Riverside','ventura':'Ventura'
 };
 
-const els = Object.fromEntries(['map-content','map-loading','map-status','area-search','area-options','search-button','priority-button','detail-title','detail-description','detail-metric','detail-rate','detail-classification','detail-actions','zoom-county','share-county','organization-list','org-count','table-toggle','county-table-wrap','county-table-body'].map(id => [id, document.getElementById(id)]));
+const els = Object.fromEntries(['map-content','map-loading','map-status','area-search','area-options','search-button','priority-button','detail-title','detail-description','detail-metric','detail-rate','detail-classification','detail-actions','zoom-county','share-county','organization-list','org-count','local-insights','local-insights-list','local-insights-note','table-toggle','county-table-wrap','county-table-body'].map(id => [id, document.getElementById(id)]));
 
 function rateOf(feature) { return Number(feature.properties.MMG_PCT_OVERALL_FI_RATE); }
 function nameOf(feature) { return feature.properties.COUNTY_NM; }
@@ -35,7 +35,14 @@ function featureBounds(feature) {
   return { minX:Math.min(...xs), maxX:Math.max(...xs), minY:Math.min(...ys), maxY:Math.max(...ys) };
 }
 
-function applyTransform() { els['map-content'].style.transform = `translate(${state.tx}px, ${state.ty}px) scale(${state.scale})`; }
+function applyTransform() {
+  // The zoom calculations use coordinates in the SVG viewBox. Keep the CSS
+  // transform origin at that viewBox origin so a county's projected bounds
+  // are translated to the intended map center instead of being offset by the
+  // browser's default center origin.
+  els['map-content'].style.transformOrigin = '0 0';
+  els['map-content'].style.transform = `translate(${state.tx}px, ${state.ty}px) scale(${state.scale})`;
+}
 function setZoom(nextScale, centerX = 340, centerY = 380) {
   const oldScale = state.scale;
   state.scale = Math.max(1, Math.min(5, nextScale));
@@ -80,6 +87,36 @@ function populateOrganizations(county) {
   });
 }
 
+function cleanCityName(name) { return name.replace(/^City of /, ''); }
+
+function populateLocalInsights(county, requestedPlace = '') {
+  els['local-insights-list'].replaceChildren();
+  if (county !== 'Los Angeles' || !state.localInsights.length) {
+    els['local-insights'].hidden = true;
+    return;
+  }
+
+  const normalizedRequest = requestedPlace.trim().toLowerCase().replace(/^city of /, '');
+  const requested = state.localInsights.find(item => cleanCityName(item.Geo_Name).toLowerCase() === normalizedRequest);
+  const visible = requested
+    ? [requested, ...state.localInsights.filter(item => item !== requested).slice(0, 5)]
+    : state.localInsights.slice(0, 8);
+
+  els['local-insights'].hidden = false;
+  els['local-insights-note'].textContent = requested
+    ? `${cleanCityName(requested.Geo_Name)} is shown first, followed by high-need LA County cities. Estimates are modeled and are not directly comparable with the county rate.`
+    : 'Highest estimated city rates are shown first. These modeled local measures are not directly comparable with the county rate.';
+
+  visible.forEach(item => {
+    const card = document.createElement('article');
+    card.className = `city-insight${item === requested ? ' selected-city' : ''}`;
+    const heading = document.createElement('strong'); heading.textContent = cleanCityName(item.Geo_Name);
+    const child = document.createElement('p'); child.innerHTML = `<b>${item.Child_FI.toFixed(1)}%</b> child food insecurity <span>95% CI ${item.Child_FI_LCL.toFixed(1)}–${item.Child_FI_UCL.toFixed(1)}%</span>`;
+    const adult = document.createElement('p'); adult.innerHTML = `<b>${item.Adult_NI.toFixed(1)}%</b> adult nutrition insecurity <span>95% CI ${item.Adult_NI_LCL.toFixed(1)}–${item.Adult_NI_UCL.toFixed(1)}%</span>`;
+    card.append(heading, child, adult); els['local-insights-list'].append(card);
+  });
+}
+
 function selectCounty(feature, shouldZoom = false) {
   state.selected = feature; const county = nameOf(feature), rate = rateOf(feature), classification = level(rate);
   document.querySelectorAll('.county').forEach(path => path.classList.toggle('selected', path.dataset.county === county));
@@ -87,6 +124,7 @@ function selectCounty(feature, shouldZoom = false) {
   els['detail-rate'].textContent = `${rate.toFixed(1)}%`; els['detail-metric'].hidden = false; els['detail-classification'].hidden = false; els['detail-actions'].hidden = false;
   els['detail-classification'].textContent = classification.label; els['detail-classification'].style.background = classification.color;
   els['area-search'].value = county; populateOrganizations(county);
+  populateLocalInsights(county);
   const url = new URL(location.href); url.searchParams.set('county', county); history.replaceState({}, '', url);
   els['map-status'].value = `${county} County selected, ${rate.toFixed(1)} percent estimated food insecurity`;
   if (shouldZoom) zoomToFeature(feature);
@@ -99,8 +137,9 @@ function findCounty(query) {
 }
 
 function runSearch() {
-  const feature = findCounty(els['area-search'].value);
-  if (feature) selectCounty(feature, true);
+  const query = els['area-search'].value;
+  const feature = findCounty(query);
+  if (feature) { selectCounty(feature, true); els['area-search'].value = query; populateLocalInsights(nameOf(feature), query); }
   else { els['map-status'].value = 'Area not found. Try a California county or major city.'; els['area-search'].setCustomValidity('Try a California county or major city.'); els['area-search'].reportValidity(); }
 }
 
@@ -130,9 +169,19 @@ function bindControls() {
 
 async function init() {
   try {
-    const [geoResponse, orgResponse] = await Promise.all([fetch('/api/counties'), fetch('/api/organizations')]);
-    if (!geoResponse.ok || !orgResponse.ok) throw new Error('Data request failed');
-    state.geojson = await geoResponse.json(); const orgData = await orgResponse.json(); state.organizations = orgData.organizations;
+    const [geoResponse, orgResponse, adultResponse, childResponse] = await Promise.all([
+      fetch('/api/counties'),
+      fetch('/api/organizations'),
+      fetch('/data/la-county-city-nutrition-insecurity.json'),
+      fetch('/data/la-county-city-child-food-insecurity.json')
+    ]);
+    if (!geoResponse.ok || !orgResponse.ok || !adultResponse.ok || !childResponse.ok) throw new Error('Data request failed');
+    state.geojson = await geoResponse.json();
+    const orgData = await orgResponse.json(); state.organizations = orgData.organizations;
+    const adultData = await adultResponse.json(), childData = await childResponse.json();
+    const childById = new Map(childData.features.map(feature => [feature.attributes.Geo_ID, feature.attributes]));
+    state.localInsights = adultData.features.map(feature => ({ ...feature.attributes, ...childById.get(feature.attributes.Geo_ID) })).filter(item => Number.isFinite(item.Adult_NI) && Number.isFinite(item.Child_FI)).sort((a,b) => b.Child_FI - a.Child_FI);
+    state.localInsights.forEach(item => { cityToCounty[cleanCityName(item.Geo_Name).toLowerCase()] = 'Los Angeles'; });
     els['map-loading'].remove(); state.geojson.features.forEach(feature => els['map-content'].append(makePath(feature)));
     const countyNames = state.geojson.features.map(nameOf).sort();
     [...countyNames.map(name => `${name} County`), ...Object.keys(cityToCounty).map(name => name.replace(/\b\w/g, char => char.toUpperCase()))].forEach(name => { const option = document.createElement('option'); option.value = name; els['area-options'].append(option); });

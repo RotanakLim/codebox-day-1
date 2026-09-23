@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#18362f">
+  <meta name="theme-color" content="#345c53">
   <title>California Food Need Map</title>
   <meta name="description" content="Explore county-level food insecurity estimates and find California food assistance organizations.">
   <link rel="stylesheet" href="/styles.css">
@@ -12,7 +12,7 @@
   <a class="skip-link" href="#map-section">Skip to map</a>
   <header class="site-header">
     <a class="brand" href="#top" aria-label="California Food Need Map home"><span class="brand-mark" aria-hidden="true">CA</span><span>Food Need Map</span></a>
-    <nav aria-label="Main navigation"><a href="#map-section">Explore</a><a href="#resources">Get help</a><a href="#methodology">About the data</a></nav>
+    <nav aria-label="Main navigation"><a href="#map-section">Explore</a><a href="#resources">Get help</a><a href="#take-action">Take action</a><a href="#methodology">About the data</a></nav>
     <a class="header-help" href="tel:211">Call 211</a>
   </header>
 
@@ -64,6 +64,12 @@
           <div id="detail-metric" class="detail-metric" hidden><strong id="detail-rate">—</strong><span>estimated food insecurity rate</span></div>
           <div id="detail-classification" class="need-badge" hidden></div>
           <div class="detail-actions" id="detail-actions" hidden><button id="zoom-county" class="button button-dark" type="button">Zoom to county</button><button id="share-county" class="button button-ghost" type="button">Copy link</button></div>
+          <section id="local-insights" class="local-insights" aria-labelledby="local-insights-title" hidden>
+            <div class="local-insights-heading"><h4 id="local-insights-title">City-level context</h4><span>Los Angeles County · 2023</span></div>
+            <p id="local-insights-note">Small-area estimates from the Los Angeles County Department of Public Health. These local measures differ from the county rate above.</p>
+            <div id="local-insights-list" class="local-insights-list"></div>
+            <a class="local-source" href="https://services.arcgis.com/RmCCgQtiZLDCtblq/arcgis/rest/services/Adult_Nutrition_Insecurity/FeatureServer" target="_blank" rel="noreferrer">View LA County data and methods ↗</a>
+          </section>
           <div class="org-results"><div class="org-results-heading"><h4>Organizations that can help</h4><span id="org-count"></span></div><div id="organization-list" class="organization-list"><p class="empty-message">Statewide resources will appear here.</p></div></div>
         </aside>
       </div>
@@ -80,14 +86,25 @@
       </div>
     </section>
 
+    <section id="take-action" class="action-section" aria-labelledby="action-title">
+      <div class="section-heading compact"><p class="eyebrow">For neighbors with capacity to help</p><h2 id="action-title">Small actions can widen the circle of support.</h2><p>Food insecurity is shaped by access, income, transportation, and policy—not personal choices. Choose a step that fits your time and resources.</p></div>
+      <div class="action-grid">
+        <article class="action-card"><span class="action-number">01</span><h3>Share a trusted path</h3><p>Pass along 211, CalFresh, or a local food bank link to someone who may need it. Let people choose what feels right for them.</p><a href="#resources">Share help resources <span aria-hidden="true">→</span></a></article>
+        <article class="action-card"><span class="action-number">02</span><h3>Support local partners</h3><p>Food banks and community organizations know their neighbors best. Volunteer, give, or ask what supplies and skills are most useful right now.</p><a href="https://www.cafoodbanks.org/get-involved/" target="_blank" rel="noreferrer">Find ways to get involved <span aria-hidden="true">↗</span></a></article>
+        <article class="action-card"><span class="action-number">03</span><h3>Use your voice</h3><p>Learn how food access is affected by wages, housing, transit, and public benefits—and support policies shaped with people who are most affected.</p><a href="https://www.feedingamerica.org/take-action" target="_blank" rel="noreferrer">Explore advocacy options <span aria-hidden="true">↗</span></a></article>
+      </div>
+      <p class="action-note"><strong>If you are looking for food:</strong> you do not need to solve the whole system before asking for support. Start with the trusted resources above, and choose the next small step that feels manageable.</p>
+    </section>
+
     <section id="methodology" class="methodology" aria-labelledby="method-title">
       <div class="section-heading compact"><p class="eyebrow">Read the map responsibly</p><h2 id="method-title">What this data can—and cannot—tell us</h2></div>
       <div class="method-grid">
         <article><span>01</span><h3>County layer</h3><p>The local map uses 2020 Feeding America Map the Meal Gap modeled estimates hosted by the federal HRSA. It combines survey, Census, unemployment, and food-cost inputs.</p></article>
         <article><span>02</span><h3>Current context</h3><p>Statewide cards use newer UCLA CHIS and California Food Banks findings. Their populations and methods differ, so they should not be compared directly with the map.</p></article>
         <article><span>03</span><h3>Use with local knowledge</h3><p>This is a prioritization starting point. Confirm conditions with food banks and communities before allocating services or funding.</p></article>
+        <article><span>04</span><h3>City detail</h3><p>Los Angeles County city cards use 2023 small-area estimates from LA County Public Health. Child food insecurity and adult nutrition insecurity are shown as separate measures with confidence intervals.</p></article>
       </div>
-      <div class="source-links"><a href="https://www.feedingamerica.org/research/map-the-meal-gap" target="_blank" rel="noreferrer">Feeding America methodology ↗</a><a href="https://www.cafoodbanks.org/hunger-data-reports/" target="_blank" rel="noreferrer">California hunger research ↗</a><a href="https://healthpolicy.ucla.edu/our-work/food-insecurity" target="_blank" rel="noreferrer">UCLA food insecurity research ↗</a><a href="/api/counties" download="california-food-insecurity.geojson">Download map data ↓</a></div>
+      <div class="source-links"><a href="https://www.feedingamerica.org/research/map-the-meal-gap" target="_blank" rel="noreferrer">Feeding America methodology ↗</a><a href="https://www.cafoodbanks.org/hunger-data-reports/" target="_blank" rel="noreferrer">California hunger research ↗</a><a href="https://healthpolicy.ucla.edu/our-work/food-insecurity" target="_blank" rel="noreferrer">UCLA food insecurity research ↗</a><a href="https://healthpolicy.ucla.edu/our-work/askchis-ne?language=en" target="_blank" rel="noreferrer">AskCHIS city & ZIP estimates ↗</a><a href="https://www.nutrition.gov/topics/food-security-and-access" target="_blank" rel="noreferrer">USDA food access resources ↗</a><a href="/api/counties" download="california-food-insecurity.geojson">Download map data ↓</a></div>
     </section>
   </main>
   <footer><div><strong>California Food Need Map</strong><p>Built for informed, compassionate action.</p></div><p>Data is informational and does not determine program eligibility.</p></footer>

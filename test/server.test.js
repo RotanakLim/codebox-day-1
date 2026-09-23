@@ -42,6 +42,23 @@ test('serves statewide and county organizations', async () => {
   assert.ok(data.organizations.some(org => org.counties.includes('Los Angeles')));
 });
 
+test('serves sourced Los Angeles city-level context data', async () => {
+  const [adultResponse, childResponse] = await Promise.all([
+    fetch(`${baseUrl}/data/la-county-city-nutrition-insecurity.json`),
+    fetch(`${baseUrl}/data/la-county-city-child-food-insecurity.json`)
+  ]);
+  const adult = await adultResponse.json();
+  const child = await childResponse.json();
+  assert.equal(adult.features.length, 62);
+  assert.equal(child.features.length, 62);
+  assert.ok(adult.features.every(feature => Number.isFinite(feature.attributes.Adult_NI)));
+  assert.ok(child.features.every(feature => Number.isFinite(feature.attributes.Child_FI)));
+  assert.deepEqual(
+    new Set(adult.features.map(feature => feature.attributes.Geo_ID)),
+    new Set(child.features.map(feature => feature.attributes.Geo_ID))
+  );
+});
+
 test('blocks path traversal and returns JSON 404s', async () => {
   const response = await fetch(`${baseUrl}/missing-file`);
   assert.equal(response.status, 404);
