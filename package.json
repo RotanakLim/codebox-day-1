@@ -2,14 +2,24 @@
   "name": "california-food-need-map",
   "version": "1.0.0",
   "description": "An accessible California food-insecurity planning map for nonprofits and community partners.",
-  "main": "src/index.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "node --watch src/index.js",
+    "start": "node server.js",
+    "dev": "node --watch server.js",
     "test": "node --test"
   },
-  "engines": { "node": ">=18" },
-  "keywords": ["food-insecurity", "california", "nonprofit", "map"],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "food-insecurity",
+    "california",
+    "nonprofit",
+    "map"
+  ],
   "license": "ISC",
-  "type": "commonjs"
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
 }
