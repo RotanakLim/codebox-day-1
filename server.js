@@ -1,7 +1,6 @@
 require('dotenv').config({ quiet: true });
 
 const express = require('express');
-const authenticateToken = require('./middleware/auth');
 const usersRouter = require('./routes/users');
 
 const app = express();
@@ -12,10 +11,6 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/users', usersRouter);
-
-app.get('/api/me', authenticateToken, (req, res) => {
-  res.json({ id: 1, name: 'Alex' });
-});
 
 if (require.main === module) {
   app.listen(PORT, () => {
