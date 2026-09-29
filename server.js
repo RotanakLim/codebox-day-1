@@ -1,28 +1,20 @@
+require('dotenv').config({ quiet: true });
+
 const express = require('express');
+const authenticateToken = require('./middleware/auth');
+const usersRouter = require('./routes/users');
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
-const users = [
-  { id: 1, name: 'Alex' },
-  { id: 2, name: 'Sam' }
-];
 
 app.get('/', (req, res) => {
   res.send('Hello from CodeBox!');
 });
 
-app.get('/api/users', (req, res) => {
-  res.json(users);
-});
+app.use('/api/users', usersRouter);
 
-app.get('/api/users/:id', (req, res) => {
-  const user = users.find(({ id }) => id === Number(req.params.id));
-
-  if (!user) {
-    return res.status(404).json({ error: 'User not found' });
-  }
-
-  return res.json(user);
+app.get('/api/me', authenticateToken, (req, res) => {
+  res.json({ id: 1, name: 'Alex' });
 });
 
 if (require.main === module) {
